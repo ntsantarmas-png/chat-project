@@ -644,6 +644,9 @@ function isMsgBlockedForMe(m){
   // αν ΕΓΩ έχω μπλοκάρει τον αποστολέα, κρύψε
   return !!blocksMap[m.uid];
 }
+// =====================
+// Rendering messages
+// =====================
 function renderMsg(msgId, m){
   if(!m) return document.createComment('empty');
 
@@ -737,41 +740,11 @@ function renderMsg(msgId, m){
   // context menu (admin)
   row.addEventListener('contextmenu',(e)=>{if(!isAdmin)return; e.preventDefault(); ctxMsgId=msgId; ctxMsgUid=m.uid; document.getElementById('ctxMsgFrom').textContent=nameFromUid(m.uid); openCtx(document.getElementById('ctxMsg'),e.clientX,e.clientY);});
 
-  // σύνδεση: row = avatar+κάrτα
+  // σύνδεση: row = avatar + κάρτα
   row.appendChild(wrap);
   return row;
 }
 
-
-  /* Reactions strip */
-  const rxBar=document.createElement('div'); rxBar.className='reactions'; rxBar.id=`rx-${msgId}`;
-  const rxBtn=document.createElement('button'); rxBtn.className='rx-btn'; rxBtn.textContent='🙂';
-  rxBtn.title='Add reaction';
-  rxBtn.onclick=(e)=>{ e.stopPropagation(); openReactPickerForMessage(msgId, rxBtn); };
-  wrap.appendChild(rxBar); wrap.appendChild(rxBtn);
-  attachReactionsListener(msgId);
-
-  // Reply button
-  const reply=document.createElement('button'); reply.className='replyBtn'; reply.textContent='↩'; reply.title='Reply';
-  reply.onclick=(ev)=>{ ev.stopPropagation(); startReplyTo(msgId, m); };
-  wrap.appendChild(reply);
-
-  // Edit button (mine & within 5min)
-  const canEdit = (me && m.uid===me.uid && (!m.createdAt || (Date.now()-m.createdAt)<=5*60*1000));
-  if(canEdit){
-    const edit=document.createElement('button'); edit.className='editBtn'; edit.textContent='✎'; edit.title='Edit message (5 min)';
-    edit.onclick=(ev)=>{ ev.stopPropagation(); editMessageInline(wrap, msgId, m); };
-    wrap.appendChild(edit);
-  }
-
-  if(isAdmin){
-    const del=document.createElement('button'); del.className='delBtn'; del.textContent='🗑'; del.title='Delete message';
-    del.onclick=async(ev)=>{ ev.stopPropagation(); await deleteMessage(msgId); };
-    wrap.appendChild(del);
-  }
-  wrap.addEventListener('contextmenu',(e)=>{if(!isAdmin)return; e.preventDefault(); ctxMsgId=msgId; ctxMsgUid=m.uid; document.getElementById('ctxMsgFrom').textContent=nameFromUid(m.uid); openCtx(document.getElementById('ctxMsg'),e.clientX,e.clientY);});
-  return wrap;
-}
 
 async function editMessageInline(node, msgId, m){
   const textNode = node.querySelector('.text');
