@@ -147,7 +147,12 @@
       <input id="profileName" type="text" placeholder="π.χ. MysteryMan"/>
       <label class="small" style="margin-top:8px">Avatar URL (.png/.jpg/.gif)</label>
       <input id="profileAvatar" type="text" placeholder="https://i.pravatar.cc/150?u=uid"/>
-    </div>
+<!-- Preview + Randomize -->
+<div class="row" style="display:flex;align-items:center;gap:8px;margin-top:10px">
+  <img id="avatarPreview" alt="avatar preview" width="48" height="48"
+       style="border-radius:50%;border:1px solid #2b3350;object-fit:cover;">
+  <button id="btnAvatarRandom" class="btn" type="button">Randomize</button>
+</div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
       <button id="btnSaveProfile" class="btn primary">Αποθήκευση</button>
       <button id="btnCloseProfile" class="btn">Κλείσιμο</button>
