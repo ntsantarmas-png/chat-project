@@ -653,17 +653,18 @@ function renderMsg(msgId,m){
   // mention ping if mentions me
   if(!mine && hasMentionForUid(m.text||'', me?.uid)) wrap.classList.add('ping');
 
-  const display = escapeHtml(nameFromUid(m.uid));
+const display = escapeHtml(nameFromUid(m.uid));
+const header = document.createElement('div');
+header.className = 'topline';
 header.innerHTML = `
-  <div class="topline">
-    <img class="u-ava" src="${getUserAvatar(m.uid)}" alt="">
-    <span class="sender ${adm ? 'admin' : ''}">
-      ${display} ${adm ? '<span class="admintag">ADMIN</span>' : ''}
-    </span>
-    <span class="time">${formatTime(m.createdAt)} ${editedMarker}</span>
-  </div>
+  <img class="u-ava" src="${getUserAvatar(m.uid)}" alt="">
+  <span class="sender ${adm ? 'admin' : ''}">
+    ${display} ${adm ? '<span class="admintag">ADMIN</span>' : ''}
+  </span>
+  <span class="time">${formatTime(m.createdAt)} ${editedMarker}</span>
 `;
-wrap.appendChild(header.firstChild);
+wrap.appendChild(header);
+
 
 
   if(m.replyTo){
