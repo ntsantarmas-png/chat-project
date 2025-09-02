@@ -154,7 +154,166 @@
     </div>
   </div>
 </div>
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>chat-project</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="%231b2d5a"/><text x="50%" y="62%" text-anchor="middle" font-size="18" fill="%23ffffff" font-family="Inter,Arial">💬</text></svg>'>
+  
 
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- AUTH -->
+  <div id="auth" class="authwrap">
+    <div class="authcard">
+      <div class="title">Welcome to chat-project</div>
+      <div class="small" style="margin-top:6px">Register / Login (email δεν φαίνεται) ή Anonymous.</div>
+      <div class="grid" style="margin-top:12px">
+        <div class="vstack">
+          <div class="title" style="font-size:15px">Register</div>
+          <input id="regUsername" type="text" placeholder="Username (π.χ. MysteryMan)"/>
+          <input id="regEmail" type="email" placeholder="Email"/>
+          <input id="regPass" type="password" placeholder="Password"/>
+          <button id="btnRegister" class="btn primary">Create account</button>
+          <div id="regErr" class="err"></div>
+        </div>
+        <div class="vstack">
+          <div class="title" style="font-size:15px">Login</div>
+          <input id="logEmail" type="email" placeholder="Email"/>
+          <input id="logPass" type="password" placeholder="Password"/>
+          <button id="btnLogin" class="btn">Sign in</button>
+          <button id="btnAnon" class="btn ghost">Continue as Anonymous</button>
+          <button id="btnForgot" class="btn ghost">Forgot my password</button>
+          <div id="logErr" class="err"></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="small">Για admin: βάλε στο DB <code>roles/admins/&lt;UID&gt;: true</code> για το account του <b>MysteryMan</b>.</div>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="app" class="app" style="display:none">
+    <!-- LEFT -->
+    <div id="left" class="col">
+      <header><h2>Rooms</h2><span class="badge" id="roleBadge">User</span></header>
+      <div class="list" id="roomsList"></div>
+      <div id="roomActions">
+        <button id="btnClearRoom" class="btn danger">🧹 Clear messages</button>
+        <button id="btnDeleteRoom" class="btn danger">🗑 Delete room</button>
+      </div>
+      <div style="padding:10px;border-top:1px solid #232a3a">
+        <input id="newRoomName" placeholder="New room name..."/>
+        <button id="btnCreateRoom" class="btn primary" style="margin-top:8px;width:100%">Create Room</button>
+      </div>
+      <div id="diag">
+        <div><strong>Diagnostics</strong></div>
+        <code class="kv">connected: <span id="diagConnected">unknown</span></code>
+        <code class="kv">you: <span id="diagUid">-</span></code>
+        <code class="kv">isAdmin: <span id="diagAdmin">-</span></code>
+      </div>
+    </div>
+
+    <!-- CENTER -->
+    <div id="center" class="col">
+      <header><h2 id="roomTitle">Select a room</h2></header>
+      <div id="typingBanner"></div>
+
+      <div id="messages"></div>
+
+      <div class="replyPreview" id="replyPreview">
+        <span id="replyLabel"></span>
+        <span class="close" id="replyClose">×</span>
+      </div>
+
+      <div id="composer">
+        <button id="btnEmoji" class="iconbtn" title="Emoji">😊</button>
+        <button id="btnGif" class="iconbtn" title="GIF">GIF</button>
+        <input id="msgInput" placeholder="Write a message..." disabled/>
+        <button id="btnSend" class="btn primary" disabled>Send</button>
+      </div>
+
+      <!-- Emoji -->
+      <div id="emojiPop" class="pop"><div class="emoji-grid" id="emojiGrid"></div></div>
+
+      <!-- GIF -->
+      <div id="gifPop" class="pop gif-panel">
+        <div class="gif-head">
+          <input id="gifSearch" type="text" placeholder="Search GIFs… (π.χ. dance)"/>
+          <button id="gifGo" class="btn">Search</button>
+        </div>
+        <div id="gifGrid" class="gif-grid"></div>
+        <div id="gifEmpty" class="gif-empty" style="display:none">No results.</div>
+        <div class="small" style="margin-top:6px;opacity:.6)">Powered by GIPHY</div>
+      </div>
+
+      <!-- Reactions picker -->
+      <div id="reactPop" class="pop"><div class="emoji-grid" id="reactGrid"></div></div>
+    </div>
+
+ <!-- RIGHT -->
+<div id="right" class="col">
+  <header>
+    <h2>Users</h2>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button id="btnProfile" class="btn">Profile</button>
+      <button id="btnSignOut" class="btn">Sign out</button>
+    </div>
+  </header>
+  <div class="hint"></div>
+  <div class="list" id="usersList"><div class="small" style="opacity:.8">Loading…</div></div>
+</div>
+
+ 
+    <!-- Menus -->
+    <div id="ctxUser" class="ctx">
+      <div class="item" data-action="addFriend">➕ Add friend</div>
+      <div class="item" data-action="removeFriend">➖ Remove friend</div>
+      <div class="item" data-action="block">🚫 Block</div>
+      <div class="item" data-action="unblock">✅ Unblock</div>
+      <div class="item danger adminOnly" data-action="kickRoom">⛔ Kick (room)</div>
+      <div class="item danger adminOnly" data-action="banGlobal">⛔ Ban (global)</div>
+      <div class="item adminOnly" data-action="unbanAll">✅ Unban</div>
+      <div class="item">On: <span id="ctxUserName" style="opacity:.8"></span></div>
+    </div>
+    <div id="ctxMsg" class="ctx">
+      <div class="item danger" data-action="delMsg">🗑 Delete message</div>
+      <div class="item">From: <span id="ctxMsgFrom" style="opacity:.8"></span></div>
+    </div>
+  </div>
+
+  <!-- Firebase compat -->
+ <!-- Firebase v8 (σταθερό) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+
+  
+<!-- Profile Modal -->
+<div id="profileModal" class="modal" style="display:none">
+  <div class="authcard">
+    <div class="title">Ρυθμίσεις Προφίλ</div>
+    <div class="vstack" style="margin-top:10px">
+      <label class="small">Όνομα χρήστη</label>
+      <input id="profileName" type="text" placeholder="π.χ. MysteryMan"/>
+      <label class="small" style="margin-top:8px">Avatar URL (.png/.jpg/.gif)</label>
+      <input id="profileAvatar" type="text" placeholder="https://i.pravatar.cc/150?u=uid"/>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+      <button id="btnSaveProfile" class="btn primary">Αποθήκευση</button>
+      <button id="btnCloseProfile" class="btn">Κλείσιμο</button>
+    </div>
+  </div>
+</div>
+<div id="profileBox">
+  <img id="avatarPreview" src="" alt="avatar" width="96" height="96">
+  <button id="avatarRandomBtn">Randomize avatar</button>
+</div>
 
 
   <script src="js/app.js" defer></script>
