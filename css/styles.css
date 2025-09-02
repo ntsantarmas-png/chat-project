@@ -128,3 +128,17 @@ code.kv{display:block;color:#ccd8ff}
 #profileBox{display:flex;align-items:center;gap:12px}
 #avatarPreview{border-radius:50%;border:2px solid #444}
 #avatarRandomBtn{padding:8px 12px;border-radius:10px;border:0;cursor:pointer}
+/* Hide stray empty message containers */
+.msgRow:empty,
+.msg:empty {
+  display: none !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Ασφάλεια: μην έχει τεχνητό min-height */
+.msgRow,
+.msg {
+  min-height: 0 !important;
+}
