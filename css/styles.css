@@ -148,3 +148,17 @@
   object-fit: cover;
   border: 1px solid #444;
 }
+
+/* Layout για το εξωτερικό wrapper των μηνυμάτων */
+.msgRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 6px 0;
+}
+
+.msgRow.mine {
+  flex-direction: row-reverse; /* τα δικά σου bubbles πάνε δεξιά */
+}
+
+/* έχουμε ήδη styles για .msg .topline και .msg .u-ava */
