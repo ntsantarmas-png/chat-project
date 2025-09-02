@@ -133,3 +133,18 @@
 #profileBox { display:flex; align-items:center; gap:12px; }
 #avatarPreview { border-radius:50%; border:2px solid #444; }
 #avatarRandomBtn { padding:8px 12px; border-radius:10px; border:0; cursor:pointer; }
+
+/* Message avatars */
+.msg .topline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.msg .u-ava {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #444;
+}
