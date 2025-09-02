@@ -149,14 +149,14 @@ code.kv{display:block;color:#ccd8ff}
   justify-content: flex-start !important; /* μην τα κεντράρεις */
 }
 
-/* ΜΗΝ αφήνεις το .msg να παίρνει auto margins που το κεντράρουν */
-.msgRow .msg {
-  margin: 0 0 18px 0 !important;     /* αριστερά */
-  align-self: flex-start !important;
+/* Όλα τα μηνύματα αριστερά */
+.msgRow {
+  display: flex;
+  justify-content: flex-start !important;
+  align-items: flex-start;
 }
 
-/* Τα δικά μου μηνύματα πάνε δεξιά */
-.msgRow .msg.mine {
-  margin-left: auto !important;      /* σπρώξε δεξιά */
-  margin-right: 0 !important;
+.msgRow .msg {
+  margin: 0 0 12px 0 !important;
+  align-self: flex-start !important;
 }
