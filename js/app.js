@@ -643,7 +643,14 @@ function isMsgBlockedForMe(m){
 // Rendering messages (with avatar at left)
 function renderMsg(msgId, m){
   if(!m) return document.createComment('empty');
+
+  // αν δεν έχει ούτε κείμενο, ούτε reply, ούτε χρονική σφραγίδα, το αγνοούμε
+  if(!m.text && !m.replyTo && !m.createdAt){
+    return document.createComment('blank');
+  }
+
   if(isMsgBlockedForMe(m)) return document.createComment('blocked');
+
 
   const mine = me && m.uid === me.uid;
   const adm  = adminsMap[m.uid] === true;
