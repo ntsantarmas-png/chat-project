@@ -913,3 +913,16 @@ function applyTypingFlags(){
     el.textContent = (typingMap && typingMap[uid]) ? ' · … typing' : '';
   });
 }
+
+// PATCH: refresh messages after profile save (avatar/name)
+window.addEventListener('DOMContentLoaded', () => {
+  const btnSave = document.getElementById('btnSaveProfile');
+  if (!btnSave) return;
+  btnSave.addEventListener('click', async () => {
+    try {
+      await rerenderMessagesOnce();
+    } catch (e) {
+      console.warn('rerender failed', e);
+    }
+  });
+});
