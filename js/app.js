@@ -798,4 +798,25 @@ async function loadProfileForm(){
   const snap = await db.ref("users/"+u.uid).get();
   const val = snap.val() || {};
   document.getElementById("profileAvatar").value = val.avatar || "";
+// DiceBear avatar generator
+function avatarUrl(seed, style = 'adventurer') {
+  return `https://api.dicebear.com/9.x/${style}/svg?seed=${encodeURIComponent(seed)}&size=96&radius=50`;
+}
+
+// Βρες τα στοιχεία από το HTML
+const img = document.getElementById('avatarPreview');
+const btn = document.getElementById('avatarRandomBtn');
+
+// Default avatar με βάση το χρόνο (τυχαίο)
+if (img) {
+  img.src = avatarUrl(Date.now());
+}
+
+// Κουμπί "Randomize"
+if (btn) {
+  btn.onclick = () => {
+    const seed = Math.random().toString(36).substring(2, 10);
+    img.src = avatarUrl(seed);
+  };
+
 }
