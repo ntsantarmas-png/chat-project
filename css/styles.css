@@ -142,3 +142,21 @@ code.kv{display:block;color:#ccd8ff}
 .msg {
   min-height: 0 !important;
 }
+/* --- Message alignment fix --- */
+.msgRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start !important; /* μην τα κεντράρεις */
+}
+
+/* ΜΗΝ αφήνεις το .msg να παίρνει auto margins που το κεντράρουν */
+.msgRow .msg {
+  margin: 0 0 18px 0 !important;     /* αριστερά */
+  align-self: flex-start !important;
+}
+
+/* Τα δικά μου μηνύματα πάνε δεξιά */
+.msgRow .msg.mine {
+  margin-left: auto !important;      /* σπρώξε δεξιά */
+  margin-right: 0 !important;
+}
