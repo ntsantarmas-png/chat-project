@@ -926,3 +926,30 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+// Enable avatar preview + randomizer in Profile modal
+window.addEventListener('DOMContentLoaded', () => {
+  const inputAvatar = document.getElementById('profileAvatar');
+  const preview     = document.getElementById('avatarPreview');
+  const btnRand     = document.getElementById('btnAvatarRandom');
+
+  // helper που έχουμε ήδη (αν υπάρχει, χρησιμοποίησέ την ίδια)
+  function avatarUrl(seed, style='adventurer'){
+    return `https://api.dicebear.com/9.x/${style}/svg?seed=${encodeURIComponent(seed)}&size=96&radius=50&backgroundType=solid,gradientLinear&backgroundColor=f5f5f5`;
+  }
+
+  if (inputAvatar && preview) {
+    // αρχικό preview
+    preview.src = inputAvatar.value || avatarUrl(Date.now());
+    // live preview όταν γράφεις URL
+    inputAvatar.addEventListener('input', () => { preview.src = inputAvatar.value || ''; });
+  }
+
+  if (btnRand && inputAvatar && preview) {
+    btnRand.addEventListener('click', () => {
+      const seed = Math.random().toString(36).slice(2, 10);
+      const url  = avatarUrl(seed);
+      inputAvatar.value = url;
+      preview.src = url;
+    });
+  }
+});
