@@ -953,3 +953,17 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+// Ensure #auth / #app visibility always matches sign-in state
+firebase.auth().onAuthStateChanged((user) => {
+  const authBox = document.getElementById('auth');
+  const appBox  = document.getElementById('app');
+
+  if (user) {
+    if (authBox) authBox.style.display = 'none';
+    if (appBox)  appBox.style.display  = 'flex';
+  } else {
+    if (authBox) authBox.style.display = 'grid'; // ή 'block' ανάλογα με το layout σου
+    if (appBox)  appBox.style.display  = 'none';
+  }
+});
