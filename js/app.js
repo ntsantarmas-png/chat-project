@@ -913,14 +913,3 @@ function applyTypingFlags(){
     el.textContent = (typingMap && typingMap[uid]) ? ' · … typing' : '';
   });
 }
-function applyTypingBanner(){
-  const b = document.getElementById('typingBanner');
-  if(!currentRoomId){ b.style.display='none'; return; }
-  const others = Object.keys(typingMap||{}).filter(uid => typingMap[uid] && uid !== (me&&me.uid));
-  if(others.length===0){ b.style.display='none'; b.textContent=''; return; }
-  const names = others.map(uid => (usersCache[uid]?.displayName) || `User-${uid6(uid)}`).filter(Boolean);
-  const MAX=3;
-  const label = names.length<=MAX ? names.join(', ') : names.slice(0,MAX).join(', ') + ` και ${names.length-MAX} ακόμη`;
-  b.textContent = `Γράφουν: ${label} …`;
-  b.style.display='block';
-}
