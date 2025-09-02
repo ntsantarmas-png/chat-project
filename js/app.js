@@ -24,9 +24,8 @@ const $=s=>document.querySelector(s);
 const escapeHtml=s=>(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 function getUserAvatar(uid){
   const u = usersCache[uid];
-  return (u && u.avatar) ? u.avatar : avatarUrl(uid); // fallback: σταθερό από uid
+  return (u && u.avatar) ? u.avatar : avatarUrl(uid); // fallback: DiceBear από uid
 }
-
 const uid6=u=>(u||'').slice(0,6);
 const formatTime=ts=>ts?new Date(ts).toLocaleString():'';
 function atCaret(input,add){const[start,end]=[input.selectionStart,input.selectionEnd];const v=input.value;input.value=v.slice(0,start)+add+v.slice(end);const pos=start+add.length;input.setSelectionRange(pos,pos);input.focus()}
@@ -35,9 +34,8 @@ function showToast(msg,type='ok'){const w=document.getElementById('toastWrap')||
 const norm = s => (s||'').toString().toLowerCase().replace(/\s+/g,'').trim();
 const stripNewlines = s => (s||'').toString().replace(/\s+/g,' ').trim();
 
-// ====== Avatar helpers (NEW) ======
+// ====== Avatar helpers ======
 function avatarUrl(seed, style = 'adventurer') {
-  // μαλακό background για να φαίνεται ωραία
   return `https://api.dicebear.com/9.x/${style}/svg?seed=${encodeURIComponent(seed)}&size=96&radius=50&backgroundType=solid,gradientLinear&backgroundColor=f5f5f5,fff9c4,e0f7fa,ffe0e0`;
 }
 function cryptoRandomSeed() {
@@ -63,7 +61,6 @@ let lastSentTs = 0;
 // reply state
 let replyState = null; // {msgId, uid, name, text}
 const replyPreview = $('#replyPreview'), replyLabel = $('#replyLabel'), replyClose = $('#replyClose');
-
 const mentionRe = /(^|[\s.,:;!?])@([\p{L}\p{N}_]{2,24})/gu; // @Name (unicode)
 
 db.ref(".info/connected").on("value",s=>{$('#diagConnected').textContent=s.val()?"online":"offline"});
@@ -107,8 +104,15 @@ $('#btnSignOut').onclick=()=>auth.signOut();
 // Session
 auth.onAuthStateChanged(async(user)=>{
   me=user; $('#diagUid').textContent=me?me.uid:'-';
-  if(!me){$('#auth').style.display='grid'; $('#app').style.display='none'; return;}
-  $('#auth').style.display='none'; $('#app').style.display='flex';
+  const authBox = document.getElementById('auth');
+  const appBox  = document.getElementById('app');
+  if(!me){
+    if (authBox) authBox.style.display='grid';
+    if (appBox)  appBox.style.display='none';
+    return;
+  }
+  if (authBox) authBox.style.display='none';
+  if (appBox)  appBox.style.display='flex';
 
   await refreshAdmins(); renderRole();
 
@@ -355,18 +359,16 @@ function applyTypingBanner(){
   b.style.display='block';
 }
 
-// Emoji master set
+// Emoji set + pickers
 const emojiSet="😀 😃 😄 😁 😆 😂 🤣 😊 🙂 🙃 😉 😌 😍 🥰 😘 😗 😙 😚 😋 😛 😝 😜 🤪 🤨 🧐 🤓 😎 🥳 😏 😒 🙄 😬 🤥 😴 🤤 😪 😮 😯 😲 😳 🫣 😱 😨 😰 😥 😢 😭 😤 😠 😡 🤬 🤯 😳 🥵 🥶 😶‍🌫️ 😶 😐 😑 😒 😕 🙁 ☹️ 😔 😟 😤 🤗 🤔 🤭 🤫 🤤 🤝 👍 👎 👊 ✊ 🤛 🤜 👏 🙌 👐 🤲 🙏 💪 🫶 ❤️ 🧡 💛 💚 💙 💜 🤎 🖤 🤍 💖 💗 💓 💞 💕 💘 💝 💟 🔥 ✨ 💫 🌟 ⭐ 🎉 🎊 🥂 🍻 🍺 🍕 🍔 🍟 🌭 🍗 🍖 🍣 🍤 🍱 🍜 🍝 🍲 🍛 🍰 🍫 🍩 🍪 ☕ 🍵 🧋 🫖 🎧 🎵 🎶 🎤 🎸 🎹 🥁 🎮 🕹️ 🏆 ⚽ 🏀 🏈 ⚾ 🎾 🏐 🏓 🏸 🥅 🚗 ✈️ 🚀 🛰️ 🛸 ⏰ ⏳ 📷 📸 📱 💻 🖥️".split(/\s+/);
 function initEmoji(){const grid=$('#emojiGrid'); if(!grid) return; grid.innerHTML=''; emojiSet.forEach(e=>{const b=document.createElement('div'); b.className='emoji'; b.textContent=e; b.title=e; b.onclick=()=>{atCaret($('#msgInput'),e)}; grid.appendChild(b);});}
 initEmoji();
 
-// Reactions picker grid
 function initReactGrid(){const grid=$('#reactGrid'); if(!grid) return; grid.innerHTML=''; emojiSet.forEach(e=>{const b=document.createElement('div'); b.className='emoji'; b.textContent=e; b.title=e; b.onclick=()=>{ if(currentReactMsgId) toggleReaction(currentReactMsgId,e); closePopover($('#reactPop')); }; grid.appendChild(b);});}
 initReactGrid();
 
 // Popovers & GIF
 function openPopover(menu, anchor){
-  // toggle
   if(menu.style.display==='block'){ menu.style.display='none'; return; }
   menu.style.display='block'; menu.style.visibility='hidden';
 
@@ -377,11 +379,11 @@ function openPopover(menu, anchor){
   const vw = window.innerWidth;
   const vh = window.innerHeight;
 
-  // Προσπάθησε ΠΑΝΩ από το κουμπί, αλλιώς ΚΑΤΩ
+  // Προσπάθησε ΠΑΝΩ, αλλιώς ΚΑΤΩ
   let top = ar.top - mh - pad;
   if(top < 8) top = Math.min(ar.bottom + pad, vh - mh - 8);
 
-  // Ασφαλής οριζόντια τοποθέτηση
+  // Οριζόντια ασφαλής
   let left = ar.left;
   if(left + mw > vw - 8) left = Math.max(8, ar.right - mw);
   left = Math.min(Math.max(left, 8), vw - mw - 8);
@@ -411,13 +413,10 @@ function renderGifResults(items){
 $('#btnGif').onclick=()=>{
   const pop = $('#gifPop');
   openPopover(pop, $('#btnGif'));
-  // πάντα loadTrending στην πρώτη φορά
   loadTrending().then(()=>{
-    // μόλις φορτωθούν τα GIFs, ξανατοποθέτηση
     if('ResizeObserver' in window){
       if(pop._ro){ try{ pop._ro.disconnect(); }catch{} }
       pop._ro = new ResizeObserver(()=> {
-        // ξανατοποθέτηση με σωστό ύψος
         const ar = $('#btnGif').getBoundingClientRect();
         const pad = 8;
         const mw = pop.offsetWidth;
@@ -441,7 +440,6 @@ window.addEventListener('pointerdown',e=>{
   if(!e.target.closest('#ctxUser')) document.getElementById('ctxUser').style.display='none';
   if(!e.target.closest('#ctxMsg')) document.getElementById('ctxMsg').style.display='none';
 });
-// ESC to close popovers
 window.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
     closePopover($('#emojiPop')); closePopover($('#gifPop')); closePopover($('#reactPop'));
@@ -451,7 +449,7 @@ window.addEventListener('keydown',e=>{
 });
 
 // =========================
- // Messaging + typing + reply
+// Messaging + typing + reply
 // =========================
 function updateComposerLock(){const locked=(!me||!currentRoomId||myBannedGlobal); $('#msgInput').disabled=locked; $('#btnSend').disabled=locked;}
 $('#btnSend').onclick=sendMsg;
@@ -503,11 +501,9 @@ async function sendMessageDirect(text, replyTo=null){
 
 // Mentions helpers
 function findMentions(str){
-  const hits=[];
-  if(!str) return hits;
+  const hits=[]; if(!str) return hits;
   for(const m of str.matchAll(mentionRe)){
-    const raw = (m[2]||'').trim();
-    const key = norm(raw);
+    const raw = (m[2]||'').trim(); const key = norm(raw);
     if(key) hits.push({raw, key});
   }
   return hits;
@@ -612,7 +608,7 @@ function attachReactionsListener(msgId){
   reactionListeners[msgId]=cb;
 }
 
-// Messages rendering + delete + reactions + mention + reply + edit + block filter
+// Messages rendering
 let ctxMsgId=null, ctxMsgUid=null;
 function nameFromUid(uid){
   if(uid===me?.uid){
@@ -641,36 +637,28 @@ function renderQuote(q){
 
 function isMsgBlockedForMe(m){
   if(!m || !m.uid) return false;
-  // αν ΕΓΩ έχω μπλοκάρει τον αποστολέα, κρύψε
   return !!blocksMap[m.uid];
 }
-// =====================
-// Rendering messages
-// =====================
+
+// Rendering messages (with avatar at left)
 function renderMsg(msgId, m){
   if(!m) return document.createComment('empty');
-
-  // κρύψε μήνυμα αν το έχω μπλοκάρει
   if(isMsgBlockedForMe(m)) return document.createComment('blocked');
 
   const mine = me && m.uid === me.uid;
   const adm  = adminsMap[m.uid] === true;
 
-  // ---- ΕΞΩΤΕΡΙΚΗ ΣΕΙΡΑ: (avatar + κάρτα)
   const row = document.createElement('div');
   row.className = 'msgRow' + (mine ? ' mine' : '');
   row.dataset.id  = msgId;
   row.dataset.uid = m.uid || '';
 
-  // ---- ΚΑΡΤΑ ΜΗΝΥΜΑΤΟΣ
   const wrap = document.createElement('div');
   wrap.className = 'msg' + (mine ? ' mine' : '');
   wrap.id = 'msg-' + msgId;
 
-  // mention ping (highlight) αν με αναφέρει
   if(!mine && hasMentionForUid(m.text||'', me?.uid)) wrap.classList.add('ping');
 
-  // ---- HEADER (avatar + sender + ώρα)
   const header = document.createElement('div');
   header.className = 'topline';
 
@@ -699,19 +687,16 @@ function renderMsg(msgId, m){
 
   wrap.appendChild(header);
 
-  // ---- Reply quote (αν υπάρχει)
   if(m.replyTo){
     const qDiv = renderQuote(m.replyTo);
     if(qDiv) wrap.appendChild(qDiv);
   }
 
-  // ---- ΚΥΡΙΟ ΚΕΙΜΕΝΟ / EMBEDS
   const textDiv = document.createElement('div');
   textDiv.className = 'text';
   textDiv.appendChild(buildMessageContent(m.text || ''));
   wrap.appendChild(textDiv);
 
-  // ---- Reactions strip
   const rxBar=document.createElement('div'); rxBar.className='reactions'; rxBar.id=`rx-${msgId}`;
   const rxBtn=document.createElement('button'); rxBtn.className='rx-btn'; rxBtn.textContent='🙂';
   rxBtn.title='Add reaction';
@@ -719,7 +704,6 @@ function renderMsg(msgId, m){
   wrap.appendChild(rxBar); wrap.appendChild(rxBtn);
   attachReactionsListener(msgId);
 
-  // ---- Reply / Edit / Delete
   const reply=document.createElement('button'); reply.className='replyBtn'; reply.textContent='↩'; reply.title='Reply';
   reply.onclick=(ev)=>{ ev.stopPropagation(); startReplyTo(msgId, m); };
   wrap.appendChild(reply);
@@ -737,14 +721,11 @@ function renderMsg(msgId, m){
     wrap.appendChild(del);
   }
 
-  // context menu (admin)
   row.addEventListener('contextmenu',(e)=>{if(!isAdmin)return; e.preventDefault(); ctxMsgId=msgId; ctxMsgUid=m.uid; document.getElementById('ctxMsgFrom').textContent=nameFromUid(m.uid); openCtx(document.getElementById('ctxMsg'),e.clientX,e.clientY);});
 
-  // σύνδεση: row = avatar + κάρτα
   row.appendChild(wrap);
   return row;
 }
-
 
 async function editMessageInline(node, msgId, m){
   const textNode = node.querySelector('.text');
@@ -831,7 +812,7 @@ ctxMsg.addEventListener('click',async e=>{
 });
 
 // =========================
-// Profile Modal + Avatar (NEW CLEAN BLOCK)
+// Profile Modal + Avatar
 // =========================
 window.addEventListener("DOMContentLoaded", () => {
   const profileModal = document.getElementById("profileModal");
@@ -846,15 +827,11 @@ window.addEventListener("DOMContentLoaded", () => {
   async function loadProfileForm(){
     const u = auth.currentUser;
     if(!u) return;
-
-    // Φέρε ό,τι υπάρχει στη DB
     const snap = await db.ref("users/"+u.uid).get();
     const val = snap.val() || {};
 
-    // Όνομα
     inputName && (inputName.value = (val.displayName || u.displayName || "").trim());
 
-    // Avatar URL: DB -> input -> σταθερό από uid (DiceBear)
     const url = (val.avatar && val.avatar.trim())
       || (inputAvatar && inputAvatar.value && inputAvatar.value.trim())
       || avatarUrl(u.uid);
@@ -878,8 +855,8 @@ window.addEventListener("DOMContentLoaded", () => {
     btnRandom.onclick = () => {
       const seed = cryptoRandomSeed();
       const url  = avatarUrl(seed);
-      imgPreview.src   = url;     // δείξε preview
-      inputAvatar.value = url;    // γράψ’ το για να σωθεί με Save
+      imgPreview.src   = url;
+      inputAvatar.value = url;
     };
   }
   if(btnSave){
@@ -897,6 +874,7 @@ window.addEventListener("DOMContentLoaded", () => {
         });
         showToast("✅ Profile updated!");
         profileModal.style.display = "none";
+        await rerenderMessagesOnce();
       } catch(e){
         showToast("❌ " + (e?.message||e), "err");
       }
@@ -905,7 +883,7 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 // =========================
-// Typing banner helpers (already referenced above)
+// Typing banner helpers
 // =========================
 function applyTypingFlags(){
   document.querySelectorAll('.typing-flag').forEach(el=>{
@@ -913,57 +891,3 @@ function applyTypingFlags(){
     el.textContent = (typingMap && typingMap[uid]) ? ' · … typing' : '';
   });
 }
-
-// PATCH: refresh messages after profile save (avatar/name)
-window.addEventListener('DOMContentLoaded', () => {
-  const btnSave = document.getElementById('btnSaveProfile');
-  if (!btnSave) return;
-  btnSave.addEventListener('click', async () => {
-    try {
-      await rerenderMessagesOnce();
-    } catch (e) {
-      console.warn('rerender failed', e);
-    }
-  });
-});
-// Enable avatar preview + randomizer in Profile modal
-window.addEventListener('DOMContentLoaded', () => {
-  const inputAvatar = document.getElementById('profileAvatar');
-  const preview     = document.getElementById('avatarPreview');
-  const btnRand     = document.getElementById('btnAvatarRandom');
-
-  // helper που έχουμε ήδη (αν υπάρχει, χρησιμοποίησέ την ίδια)
-  function avatarUrl(seed, style='adventurer'){
-    return `https://api.dicebear.com/9.x/${style}/svg?seed=${encodeURIComponent(seed)}&size=96&radius=50&backgroundType=solid,gradientLinear&backgroundColor=f5f5f5`;
-  }
-
-  if (inputAvatar && preview) {
-    // αρχικό preview
-    preview.src = inputAvatar.value || avatarUrl(Date.now());
-    // live preview όταν γράφεις URL
-    inputAvatar.addEventListener('input', () => { preview.src = inputAvatar.value || ''; });
-  }
-
-  if (btnRand && inputAvatar && preview) {
-    btnRand.addEventListener('click', () => {
-      const seed = Math.random().toString(36).slice(2, 10);
-      const url  = avatarUrl(seed);
-      inputAvatar.value = url;
-      preview.src = url;
-    });
-  }
-});
-
-// Ensure #auth / #app visibility always matches sign-in state
-firebase.auth().onAuthStateChanged((user) => {
-  const authBox = document.getElementById('auth');
-  const appBox  = document.getElementById('app');
-
-  if (user) {
-    if (authBox) authBox.style.display = 'none';
-    if (appBox)  appBox.style.display  = 'flex';
-  } else {
-    if (authBox) authBox.style.display = 'grid'; // ή 'block' ανάλογα με το layout σου
-    if (appBox)  appBox.style.display  = 'none';
-  }
-});
