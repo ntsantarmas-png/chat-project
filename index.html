@@ -175,16 +175,13 @@
       <div class="grid" style="margin-top:12px">
         <div class="vstack">
           <div class="title" style="font-size:15px">Register</div>
-          <input id="regUsername" type="text" placeholder="Username (π.χ. MysteryMan)"/>
           <input id="regEmail" type="email" placeholder="Email"/>
-          <input id="regPass" type="password" placeholder="Password"/>
           <button id="btnRegister" class="btn primary">Create account</button>
           <div id="regErr" class="err"></div>
         </div>
         <div class="vstack">
           <div class="title" style="font-size:15px">Login</div>
-          <input id="logEmail" type="email" placeholder="Email"/>
-          <input id="logPass" type="password" placeholder="Password"/>
+          
           <button id="btnLogin" class="btn">Sign in</button>
           <button id="btnAnon" class="btn ghost">Continue as Anonymous</button>
           <button id="btnForgot" class="btn ghost">Forgot my password</button>
@@ -207,7 +204,6 @@
         <button id="btnDeleteRoom" class="btn danger">🗑 Delete room</button>
       </div>
       <div style="padding:10px;border-top:1px solid #232a3a">
-        <input id="newRoomName" placeholder="New room name..."/>
         <button id="btnCreateRoom" class="btn primary" style="margin-top:8px;width:100%">Create Room</button>
       </div>
       <div id="diag">
@@ -233,7 +229,6 @@
       <div id="composer">
         <button id="btnEmoji" class="iconbtn" title="Emoji">😊</button>
         <button id="btnGif" class="iconbtn" title="GIF">GIF</button>
-        <input id="msgInput" placeholder="Write a message..." disabled/>
         <button id="btnSend" class="btn primary" disabled>Send</button>
       </div>
 
@@ -243,8 +238,7 @@
       <!-- GIF -->
       <div id="gifPop" class="pop gif-panel">
         <div class="gif-head">
-          <input id="gifSearch" type="text" placeholder="Search GIFs… (π.χ. dance)"/>
-          <button id="gifGo" class="btn">Search</button>
+        
         </div>
         <div id="gifGrid" class="gif-grid"></div>
         <div id="gifEmpty" class="gif-empty" style="display:none">No results.</div>
@@ -300,9 +294,7 @@
     <div class="title">Ρυθμίσεις Προφίλ</div>
     <div class="vstack" style="margin-top:10px">
       <label class="small">Όνομα χρήστη</label>
-      <input id="profileName" type="text" placeholder="π.χ. MysteryMan"/>
       <label class="small" style="margin-top:8px">Avatar URL (.png/.jpg/.gif)</label>
-      <input id="profileAvatar" type="text" placeholder="https://i.pravatar.cc/150?u=uid"/>
     </div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
       <button id="btnSaveProfile" class="btn primary">Αποθήκευση</button>
