@@ -22,6 +22,11 @@ const GIPHY_KEY = "bCn5Jvx2ZOepneH6fMteNoX31hVfqX25";
 const defaultAvatar = (uid) => `https://i.pravatar.cc/100?u=${encodeURIComponent(uid||'guest')}`;
 const $=s=>document.querySelector(s);
 const escapeHtml=s=>(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+function getUserAvatar(uid){
+  const u = usersCache[uid];
+  return (u && u.avatar) ? u.avatar : avatarUrl(uid); // fallback: σταθερό από uid
+}
+
 const uid6=u=>(u||'').slice(0,6);
 const formatTime=ts=>ts?new Date(ts).toLocaleString():'';
 function atCaret(input,add){const[start,end]=[input.selectionStart,input.selectionEnd];const v=input.value;input.value=v.slice(0,start)+add+v.slice(end);const pos=start+add.length;input.setSelectionRange(pos,pos);input.focus()}
@@ -310,12 +315,14 @@ function subscribeUsers(){
         const isAdm=adminsMap[uid]===true;
         const name=(u && u.displayName) ? u.displayName : `User-${uid6(uid)}`;
         const online = !!u?.online;
-        row.innerHTML=
-          `<div class="u-meta">
-             <div class="u-name">${escapeHtml(name)} ${isAdm?`<span class="admintag" style="font-size:10px;background:rgba(255,202,58,.14);border:1px solid rgba(255,202,58,.35);color:#ffd86b;border-radius:999px;padding:2px 6px;">ADMIN</span>`:''}</div>
-             <div class="u-sub"><span class="status"><span class="dot ${online?'on':''}"></span><span>${online?'online':'offline'}</span></span><span class="typing-flag" data-uid="${uid}"></span></div>
-           </div>
-           <button class="kebab" type="button" data-open="1">⋮</button>`;
+        row.innerHTML =
+  `<img class="u-ava" src="${getUserAvatar(uid)}" alt="">
+   <div class="u-meta">
+     <div class="u-name">${escapeHtml(name)} ${isAdm?`<span class="admintag" style="font-size:10px;background:rgba(255,202,58,.14);border:1px solid rgba(255,202,58,.35);color:#ffd86b;border-radius:999px;padding:2px 6px;">ADMIN</span>`:''}</div>
+     <div class="u-sub"><span class="status"><span class="dot ${online?'on':''}"></span><span>${online?'online':'offline'}</span></span><span class="typing-flag" data-uid="${uid}"></span></div>
+   </div>
+   <button class="kebab" type="button" data-open="1">⋮</button>`;
+
         list.appendChild(row);
       }
       applyTypingFlags();
@@ -647,10 +654,17 @@ function renderMsg(msgId,m){
   if(!mine && hasMentionForUid(m.text||'', me?.uid)) wrap.classList.add('ping');
 
   const display = escapeHtml(nameFromUid(m.uid));
-  const header = document.createElement('div');
-  const editedMarker = m.editedAt ? `<span class="edited">(edited)</span>` : '';
-  header.innerHTML = `<div class="topline"><span class="sender ${adm?'admin':''}">${display} ${adm?'<span class="admintag">ADMIN</span>':''}</span><span class="time">${formatTime(m.createdAt)} ${editedMarker}</span></div>`;
-  wrap.appendChild(header.firstChild);
+header.innerHTML = `
+  <div class="topline">
+    <img class="u-ava" src="${getUserAvatar(m.uid)}" alt="">
+    <span class="sender ${adm ? 'admin' : ''}">
+      ${display} ${adm ? '<span class="admintag">ADMIN</span>' : ''}
+    </span>
+    <span class="time">${formatTime(m.createdAt)} ${editedMarker}</span>
+  </div>
+`;
+wrap.appendChild(header.firstChild);
+
 
   if(m.replyTo){
     const q=renderQuote(m.replyTo);
