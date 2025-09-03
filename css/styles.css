@@ -160,3 +160,9 @@ code.kv{display:block;color:#ccd8ff}
   margin: 0 0 12px 0 !important;
   align-self: flex-start !important;
 }
+
+
+/* Auth titles and input error highlight */
+.auth-title{color:#cbd5e1;font-weight:600;margin:8px 0 6px 0;font-size:14px;letter-spacing:.2px}
+input.input-error{outline:1px solid #ef4444; box-shadow:0 0 0 2px rgba(239,68,68,.25);}
+.err{color:#ef4444; font-size:12px; margin-top:4px; min-height:16px}
