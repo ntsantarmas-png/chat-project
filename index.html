@@ -1,106 +1,108 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Modern Chat</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parea • Chat</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Firebase v10 compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 </head>
 <body>
-  <div id="app" class="app">
-    <aside class="sidebar">
-      <header class="sidebar-header">
-        <h2>ROOMS</h2>
-        <div id="roomActions" class="room-actions">
-          <button id="btnDeleteRoom" title="Delete room">🗑</button>
-          <button id="btnClearRoom" title="Clear messages">🧹</button>
-        </div>
-      </header>
-      <div id="roomsList" class="rooms-list"></div>
-      <div class="room-create">
-        <input id="newRoomName" placeholder="New room name" />
-        <button id="btnCreateRoom">Create</button>
-      </div>
-    </aside>
-
-    <main class="chat">
-      <header class="chat-header">
-        <h1 id="roomTitle">Main</h1>
-        <span id="roleBadge" class="role-badge" style="display:none;">ADMIN</span>
-        <div class="status">
-          <span id="typingBanner" style="display:none;">Κάποιος πληκτρολογεί…</span>
-          <span id="diagConnected"></span>
-          <span id="diagUid"></span>
-          <span id="diagAdmin"></span>
-        </div>
-      </header>
-
-      <section id="msgList" class="messages"></section>
-
-      <div id="replyPreview" class="reply-preview" style="display:none;">
-        <span id="replyLabel"></span>
-        <button id="replyClose">✕</button>
+  <!-- Auth Screen -->
+  <div id="authScreen" class="auth-screen">
+    <div class="auth-card">
+      <h1>👋 Καλώς ήρθες στο <span class="accent">Parea</span></h1>
+      <div class="tabs">
+        <button class="tab active" data-tab="login">Login</button>
+        <button class="tab" data-tab="register">Register</button>
       </div>
 
-      <footer class="composer">
-        <button id="btnGif" title="GIF">GIF</button>
-        <button id="btnEmoji" title="Emoji">😊</button>
-        <input id="msgInput" placeholder="Γράψε μήνυμα…" autocomplete="off" />
-        <button id="btnSend">Send</button>
-      </footer>
-    </main>
+      <form id="loginForm" class="auth-form active">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="you@example.com" required />
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" required />
+        <button type="submit" class="primary">Login</button>
+        <button type="button" id="anonBtn" class="ghost">Continue as Guest</button>
+      </form>
 
-    <aside class="users">
-      <header class="users-header"><h2>USERS</h2></header>
-      <div id="usersList" class="users-list"></div>
-      <div class="auth">
-        <h3 class="auth-title">Login</h3>
-        <input id="logEmail" type="email" placeholder="Email" />
-        <input id="logPass" type="password" placeholder="Password" />
-        <div class="auth-row">
-          <button id="btnLogin">Login</button>
-          <button id="btnAnon">Anon</button>
-          <button id="btnForgot">Forgot?</button>
-        </div>
-        <div id="logErr" class="err"></div>
-        <hr/>
-        <h3 class="auth-title">Register</h3>
-        <input id="regUsername" placeholder="Username" />
-        <input id="regEmail" type="email" placeholder="Email" />
-        <input id="regPass" type="password" placeholder="Password" />
-        <button id="btnRegister">Register</button>
-        <div id="regErr" class="err"></div>
-        <button id="btnSignOut">Sign out</button>
-      </div>
-    </aside>
-  </div>
+      <form id="registerForm" class="auth-form">
+        <label>Email</label>
+        <input type="email" id="regEmail" placeholder="you@example.com" required />
+        <label>Password</label>
+        <input type="password" id="regPassword" placeholder="At least 6 chars" required />
+        <label>Display name</label>
+        <input type="text" id="regDisplayName" placeholder="Το όνομά σου" />
+        <button type="submit" class="primary">Create account</button>
+      </form>
 
-  <!-- Popovers / Modals / Context -->
-  <div id="emojiPop" class="popover" style="display:none;"><div id="emojiGrid"></div></div>
-  <div id="reactPop" class="popover" style="display:none;"><div id="reactGrid"></div></div>
-  <div id="profileModal" class="modal" style="display:none;">
-    <div class="modal-content">
-      <h3>Profile</h3>
-      <input id="profileName" placeholder="Display name" />
-      <input id="profileAvatar" placeholder="Avatar URL" />
-      <img id="avatarPreview" alt="avatar" />
-      <button id="avatarRandomBtn">Random</button>
-      <div class="modal-actions">
-        <button id="btnSaveProfile">Save</button>
-        <button id="btnCloseProfile">Close</button>
-      </div>
+      <p id="authError" class="error"></p>
     </div>
   </div>
-  <div id="ctxUser" class="ctx" style="display:none;"><div id="ctxUserName"></div></div>
-  <div id="ctxMsg" class="ctx" style="display:none;"><div id="ctxMsgFrom"></div></div>
-  <div id="toastWrap" class="toast-wrap"></div>
 
-  <!-- Firebase (single include) -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <!-- App Layout -->
+  <div id="app" class="app hidden">
+    <!-- Rooms (Left) -->
+    <aside class="panel left">
+      <header class="panel-header">
+        <span>Rooms</span>
+        <button id="newRoomBtn" title="New Room">＋</button>
+      </header>
+      <div id="roomsList" class="list"></div>
+    </aside>
 
-  <!-- App -->
-  <script defer src="js/app.js"></script>
+    <!-- Main Chat (Center) -->
+    <main class="main">
+      <header class="main-header">
+        <div>
+          <div id="currentRoomName" class="room-name">#general</div>
+          <div id="roomStats" class="room-stats">—</div>
+        </div>
+      </header>
+
+      <section id="messages" class="messages"></section>
+
+      <footer class="composer">
+        <button id="emojiBtn" title="Emoji">😊</button>
+        <button id="gifBtn" title="GIF">GIF</button>
+        <input id="messageInput" type="text" placeholder="Γράψε μήνυμα..." />
+        <button id="sendBtn" class="primary">Send</button>
+      </footer>
+
+      <!-- Simple Emoji Picker -->
+      <div id="emojiPicker" class="emoji-picker hidden" role="menu" aria-label="Emoji picker"></div>
+    </main>
+
+    <!-- Users (Right) -->
+    <aside class="panel right">
+      <header class="panel-header">
+        <span>Users</span>
+        <button id="logoutBtn" class="danger">Logout</button>
+      </header>
+      <div id="usersList" class="list users"></div>
+    </aside>
+  </div>
+
+  <script>
+    window.PAREA_CONFIG = {
+      firebaseConfig: {
+        apiKey: "AIzaSyClHV-UzOZzyB3RXQRDfxxUrMPsb8fr-EY",
+        authDomain: "parea-b1649.firebaseapp.com",
+        databaseURL: "https://parea-b1649-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "parea-b1649",
+        storageBucket: "parea-b1649.appspot.com",
+        messagingSenderId: "354190438291",
+        appId: "1:354190438291:web:aeb06ee9420172a62c4266"
+      },
+      giphyKey: "bCn5Jvx2ZOepneH6fMteNoX31hVfqX25"
+    };
+  </script>
+  <script src="app.js"></script>
 </body>
 </html>
