@@ -274,7 +274,23 @@ $('#btnCreateRoom').onclick=async()=>{
   $('#newRoomName').value='';
 };
 
-function renderRoomActions(){const show=isAdmin&&currentRoomId&&currentRoomId!=='Main'; $('#roomActions').style.display=show?'flex':'none';}
+function renderRoomActions(){
+  const wrap = $('#roomActions');
+  const delBtn = $('#btnDeleteRoom');
+  const clearBtn = $('#btnClearRoom');
+  const hasRoom = !!currentRoomId;
+  const canAdmin = isAdmin && hasRoom;
+  if(!wrap) return;
+  wrap.style.display = canAdmin ? 'flex' : 'none';
+  if(!canAdmin) return;
+  if(currentRoomId === 'Main'){
+    if(delBtn) delBtn.style.display = 'none';
+    if(clearBtn) clearBtn.style.display = 'inline-block';
+  } else {
+    if(delBtn) delBtn.style.display = 'inline-block';
+    if(clearBtn) clearBtn.style.display = 'inline-block';
+  }
+}
 async function clearRoomMessages(roomId){
   try{ await db.ref('messages/'+roomId).remove(); await db.ref('reactions/'+roomId).remove().catch(()=>{}); await db.ref('rooms/'+roomId+'/lastMsgAt').set(0).catch(()=>{}); }
   catch(err){ showToast(err?.message||'Clear failed','err'); }
