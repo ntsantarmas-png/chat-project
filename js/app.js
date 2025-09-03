@@ -68,12 +68,18 @@ db.ref(".info/connected").on("value",s=>{$('#diagConnected').textContent=s.val()
 // =========================
 // AUTH
 // =========================
+
+function markError(el, on=true){ if(!el) return; if(on) el.classList.add('input-error'); else el.classList.remove('input-error'); }
+['logEmail','logPass','regUsername','regEmail','regPass'].forEach(id=>{
+  const el=document.getElementById(id); if(el){ el.addEventListener('input', ()=>markError(el,false)); }
+});
+
 $('#btnRegister').onclick=async()=>{
   const username=($('#regUsername')?.value||'').trim();
   const email=($('#regEmail')?.value||'').trim();
   const pass=($('#regPass')?.value||'').trim();
   const err=$('#regErr'); if(err) err.textContent='';
-  if(!username||!email||!pass){ if(err) err.textContent='Συμπλήρωσε όλα τα πεδία.'; return; }
+  if(!username||!email||!pass){ if(err) err.textContent='Συμπλήρωσε όλα τα πεδία.'; markError($('#regUsername'),!username); markError($('#regEmail'),!email); markError($('#regPass'),!pass); return; }
   const unameKey=username.toLowerCase();
   try{
     const cred=await auth.createUserWithEmailAndPassword(email,pass);
@@ -90,12 +96,12 @@ $('#btnRegister').onclick=async()=>{
 $('#btnLogin').onclick=async()=>{
   const e=$('#logEmail')?.value?.trim()||''; const p=$('#logPass')?.value?.trim()||'';
   const err=$('#logErr'); if(err) err.textContent='';
-  try{ await auth.signInWithEmailAndPassword(e,p); }catch(er){ if(err){err.textContent=er?.message||'Login error';}}
+  try{ await auth.signInWithEmailAndPassword(e,p); }catch(er){ if(err){ err.textContent=er?.message||'Login error'; } markError($('#logEmail'), !e); markError($('#logPass'), !p);}
 };
 $('#btnAnon').onclick=()=>auth.signInAnonymously().catch(er=>{const e=$('#logErr'); if(e) e.textContent=er?.message||'Anon error';});
 $('#btnForgot').onclick=async()=>{
   const e=$('#logEmail')?.value?.trim(); const err=$('#logErr');
-  if(!e){ if(err) err.textContent='Enter your email first.'; return;}
+  if(!e){ if(err) err.textContent='Enter your email first.'; markError($('#logEmail'), true); return;}
   try{ await auth.sendPasswordResetEmail(e); if(err){ err.style.color='#9f9'; err.textContent='✅ Reset link sent to '+e; } }
   catch(er){ if(err){ err.style.color='#ffb0b0'; err.textContent=er?.message||'Reset failed'; } }
 };
