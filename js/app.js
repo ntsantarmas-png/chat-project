@@ -1,7 +1,7 @@
 // =========================
 // Firebase
 // =========================
-const firebaseConfig = {
+var firebaseConfig = window.__FIREBASE_CONFIG__ || (window.__FIREBASE_CONFIG__ = {
   apiKey: "AIzaSyAh4JNLUQWibHFPv2RE3-mqQUG58670IAU",
   authDomain: "chat-project-365bc.firebaseapp.com",
   projectId: "chat-project-365bc",
@@ -9,7 +9,7 @@ const firebaseConfig = {
   messagingSenderId: "193892858440",
   appId: "1:193892858440:web:f316ed8322950f7bbc767d",
   databaseURL: "https://chat-project-365bc-default-rtdb.europe-west1.firebasedatabase.app"
-};
+)};
 const app = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.database();
@@ -212,12 +212,12 @@ function detachReactionsListeners(){
 
 async function selectRoom(roomId,room){
   if(!me) return;
-  if(unsubMsgs){db.ref('rooms/'+currentRoomId+'/messages').off('value',unsubMsgs);unsubMsgs=null;}
+  if(unsubMsgs){db.ref('messages/'+currentRoomId).off('value',unsubMsgs);unsubMsgs=null;}
   if(currentRoomId){
     db.ref('typing/'+currentRoomId).off();
     db.ref('typing/'+currentRoomId).off('child_added');
     db.ref('typing/'+currentRoomId).off('child_removed');
-    db.ref('rooms/'+currentRoomId+'/messages').off('child_added');
+    db.ref('messages/'+currentRoomId).off('child_added');
     detachReactionsListeners();
   }
   currentRoomId=roomId; lastEnterTs=Date.now();
@@ -252,10 +252,10 @@ async function selectRoom(roomId,room){
     }
     box.scrollTop=box.scrollHeight;
   };
-  db.ref('rooms/'+currentRoomId+'/messages').on('value',unsubMsgs);
+  db.ref('messages/'+currentRoomId).on('value',unsubMsgs);
 
   // Mentions toast only for NEW messages after entering room
-  db.ref('rooms/'+currentRoomId+'/messages').on('child_added', s=>{
+  db.ref('messages/'+currentRoomId).on('child_added', s=>{
     const m = s.val()||{}; if(!m || !m.text) return;
     if(m.uid===me.uid) return;
     if(m.createdAt && m.createdAt < lastEnterTs) return;
@@ -276,7 +276,7 @@ $('#btnCreateRoom').onclick=async()=>{
 
 function renderRoomActions(){const show=isAdmin&&currentRoomId&&currentRoomId!=='Main'; $('#roomActions').style.display=show?'flex':'none';}
 async function clearRoomMessages(roomId){
-  try{ await db.ref('rooms/'+roomId+'/messages').remove(); await db.ref('reactions/'+roomId).remove().catch(()=>{}); await db.ref('rooms/'+roomId+'/lastMsgAt').set(0).catch(()=>{}); }
+  try{ await db.ref('messages/'+roomId).remove(); await db.ref('reactions/'+roomId).remove().catch(()=>{}); await db.ref('rooms/'+roomId+'/lastMsgAt').set(0).catch(()=>{}); }
   catch(err){ showToast(err?.message||'Clear failed','err'); }
 }
 $('#btnClearRoom').onclick=async()=>{
@@ -494,7 +494,7 @@ async function sendMessageDirect(text, replyTo=null){
   if(!me||!currentRoomId||myBannedGlobal) return;
   const payload = {uid:me.uid,text,createdAt:Date.now()};
   if(replyTo && replyTo.msgId){ payload.replyTo = {msgId:replyTo.msgId, uid:replyTo.uid, name:replyTo.name, text:replyTo.text}; }
-  const mref=db.ref('rooms/'+currentRoomId+'/messages').push();
+  const mref=db.ref('messages/'+currentRoomId).push();
   await mref.set(payload);
   await db.ref('rooms/'+currentRoomId+'/lastMsgAt').set(payload.createdAt).catch(()=>{});
 }
@@ -769,7 +769,7 @@ async function deleteMessage(id){
 }
 async function rerenderMessagesOnce(){
   if(!currentRoomId) return;
-  const snap=await db.ref('rooms/'+currentRoomId+'/messages').get();
+  const snap=await db.ref('messages/'+currentRoomId).get();
   const val=snap.val()||{};
   const entries=Object.entries(val).sort((a,b)=>(a[1].createdAt||0)-(b[1].createdAt||0));
   const box=$('#messages'); box.innerHTML='';
