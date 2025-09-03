@@ -1,7 +1,7 @@
 // =========================
 // Firebase
 // =========================
-var firebaseConfig = window.__FIREBASE_CONFIG__ || (window.__FIREBASE_CONFIG__ = {
+const firebaseConfig = {
   apiKey: "AIzaSyAh4JNLUQWibHFPv2RE3-mqQUG58670IAU",
   authDomain: "chat-project-365bc.firebaseapp.com",
   projectId: "chat-project-365bc",
@@ -9,7 +9,7 @@ var firebaseConfig = window.__FIREBASE_CONFIG__ || (window.__FIREBASE_CONFIG__ =
   messagingSenderId: "193892858440",
   appId: "1:193892858440:web:f316ed8322950f7bbc767d",
   databaseURL: "https://chat-project-365bc-default-rtdb.europe-west1.firebasedatabase.app"
-)};
+};
 const app = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.database();
