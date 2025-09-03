@@ -1,20 +1,116 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>chat-project</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-  <div id="app-root"></div>
+  <div id="app" class="app">
+    <aside class="sidebar">
+      <header class="sidebar-header">
+        <h2>Rooms</h2>
+        <div class="room-actions" id="roomActions">
+          <button id="btnDeleteRoom" title="Delete room">🗑</button>
+          <button id="btnClearRoom" title="Clear messages">🧹</button>
+        </div>
+      </header>
+      <div class="rooms-list" id="roomsList"></div>
+      <div class="room-create">
+        <input id="newRoomName" placeholder="New room name" />
+        <button id="btnCreateRoom">Create</button>
+      </div>
+    </aside>
+
+    <main class="chat">
+      <header class="chat-header">
+        <h1 id="roomTitle">Main</h1>
+        <span id="roleBadge" class="role-badge" style="display:none;">ADMIN</span>
+        <div class="status">
+          <span id="typingBanner" style="display:none;">Κάποιος πληκτρολογεί…</span>
+          <span id="diagConnected"></span>
+          <span id="diagUid"></span>
+          <span id="diagAdmin"></span>
+        </div>
+      </header>
+
+      <section class="messages" id="msgList"></section>
+
+      <div id="replyPreview" class="reply-preview" style="display:none;">
+        <span id="replyLabel"></span>
+        <button id="replyClose">✕</button>
+      </div>
+
+      <footer class="composer">
+        <button id="btnGif" title="GIF">GIF</button>
+        <button id="btnEmoji" title="Emoji">😊</button>
+        <input id="msgInput" placeholder="Γράψε μήνυμα…" autocomplete="off" />
+        <button id="btnSend">Send</button>
+      </footer>
+    </main>
+
+    <aside class="users">
+      <header class="users-header"><h2>Users</h2></header>
+      <div id="usersList" class="users-list"></div>
+      <div class="auth">
+        <div class="login">
+          <input id="logEmail" type="email" placeholder="Email" />
+          <input id="logPass" type="password" placeholder="Password" />
+          <button id="btnLogin">Login</button>
+          <button id="btnAnon">Anon</button>
+          <button id="btnForgot">Forgot?</button>
+          <div id="logErr" class="err"></div>
+        </div>
+        <hr/>
+        <div class="register">
+          <input id="regUsername" placeholder="Username" />
+          <input id="regEmail" type="email" placeholder="Email" />
+          <input id="regPass" type="password" placeholder="Password" />
+          <button id="btnRegister">Register</button>
+          <div id="regErr" class="err"></div>
+        </div>
+        <button id="btnSignOut">Sign out</button>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Context menus / popovers -->
+  <div id="emojiPop" class="popover" style="display:none;"><div id="emojiGrid"></div></div>
+  <div id="reactPop" class="popover" style="display:none;"><div id="reactGrid"></div></div>
+
+  <!-- Profile modal -->
+  <div id="profileModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <h3>Profile</h3>
+      <input id="profileName" placeholder="Display name" />
+      <input id="profileAvatar" placeholder="Avatar URL" />
+      <img id="avatarPreview" alt="avatar" />
+      <button id="avatarRandomBtn">Random</button>
+      <div class="modal-actions">
+        <button id="btnSaveProfile">Save</button>
+        <button id="btnCloseProfile">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden ctx menus that JS positions -->
+  <div id="ctxUser" class="ctx" style="display:none;">
+    <div id="ctxUserName"></div>
+  </div>
+  <div id="ctxMsg" class="ctx" style="display:none;">
+    <div id="ctxMsgFrom"></div>
+  </div>
+
+  <!-- Toasts -->
+  <div id="toastWrap" class="toast-wrap"></div>
 
   <!-- Firebase CDN (load ONCE) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-  <!-- Your app -->
+  <!-- App (guarded init inside) -->
   <script defer src="js/app.js"></script>
 </body>
 </html>
