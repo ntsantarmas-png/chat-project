@@ -889,57 +889,6 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-import { ref, get } from "firebase/database";
-const isAdmin = (await get(ref(db, `roles/admins/${auth.currentUser.uid}`))).val() === true;
-
-
-import { ref, set, onDisconnect } from "firebase/database";
-
-// όταν αρχίζει να πληκτρολογεί:
-await set(ref(db, `typing/${currentRoomId}/${auth.currentUser.uid}`), true);
-
-// όταν σταματά/blur ή στο send:
-await set(ref(db, `typing/${currentRoomId}/${auth.currentUser.uid}`), false);
-
-// καθάρισμα αν κλείσει το tab:
-onDisconnect(ref(db, `typing/${currentRoomId}/${auth.currentUser.uid}`)).set(false);
-
-
-import { ref, onValue, serverTimestamp, onDisconnect, set } from "firebase/database";
-
-const myPresenceRef = ref(db, `presence/${auth.currentUser.uid}`);
-const connectedRef = ref(db, ".info/connected");
-
-onValue(connectedRef, async snap => {
-  if (snap.val() === true) {
-    await set(myPresenceRef, { state: "online", lastChanged: Date.now() });
-    onDisconnect(myPresenceRef).set({ state: "offline", lastChanged: Date.now() });
-  }
-});
-
-import { push, ref, set } from "firebase/database";
-
-const msgRef = push(ref(db, `rooms/${currentRoomId}/messages`));
-await set(msgRef, {
-  senderId: auth.currentUser.uid,
-  type: "text",               // "text" | "image" | "gif" | "youtube"
-  text: "hello world",        // για image/gif βάλε imageUrl/gifUrl αντίστοιχα
-  createdAt: Date.now()
-});
-
-import { push, ref, set } from "firebase/database";
-
-const roomRef = push(ref(db, "rooms"));
-await set(roomRef, {
-  name: "General",
-  owner: auth.currentUser.uid,
-  createdAt: Date.now(),
-});
-// optional metadata editable από owner/admin
-await set(ref(db, `rooms/${roomRef.key}/meta`), {
-  topic: "Welcome",
-  slowMode: false
-});
 
 // =========================
 // Typing banner helpers
